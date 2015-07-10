@@ -14,22 +14,20 @@ class AntBrain:
         self._distance_when_blocked = None
         self._feeler = self._host.get_feeler()
 
-    def _add_to_memory_since_blocked(self, position):
-        self._memory_since_blocked.append(position)
-
-    def _in_memory_since_blocked(self, position):
-        return position in self._memory_since_blocked
+    def has_moved(self):
+        if self._by_passing:
+            self._memory_since_blocked.append(self._host.get_position())
 
     def advance(self):
-        if self._memory_since_blocked:
+        if not self._by_passing:
             try:
-                advance_vector = self._get_by_pass_advance_vector()
-            except Blocked:
+                advance_vector = self._get_advance_vector()
+            except Blocked as exc:
                 self._by_passing = True
                 self._distance_when_blocked = self._distance_from_end()
-                self.advance()
+                return self.advance()
         else:
-            advance_vector = self._get_advance_vector()
+            advance_vector = self._get_by_pass_advance_vector()
         self._host.move_to(advance_vector)
 
     def _distance_from_end(self):
@@ -46,3 +44,6 @@ class AntBrain:
             return direction_modifiers[direction_of_home]
 
         raise Blocked()
+
+    def _get_by_pass_advance_vector(self):
+        raise NotImplementedError()

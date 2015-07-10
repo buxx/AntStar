@@ -15,6 +15,7 @@ class Ant:
     def move_to(self, vector):
         self._brain.update_home_vector(vector)
         self._position = (self._position[0] + vector[0], self._position[1] + vector[1])
+        self._brain.has_moved()
 
     def get_feeler(self):
         return self._feeler
