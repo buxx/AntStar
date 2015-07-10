@@ -60,4 +60,7 @@ class Grid:
 
     def is_free(self, position):
         x, y = position
-        return self._grid[y][x] is not 1
+        try:
+            return self._grid[y][x] is not 1
+        except IndexError:
+            return False

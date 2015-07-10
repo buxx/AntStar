@@ -1,7 +1,7 @@
-from antstar.exceptions import Blocked
+from antstar.exceptions import Blocked, AlreadyWalkedAround
 from antstar.geometry import get_degree_from_north, get_direction_for_degrees, direction_modifiers, \
-    get_position_with_direction_decal
-
+    get_position_with_direction_decal, slightly
+import random
 
 class AntBrain:
 
@@ -17,28 +17,39 @@ class AntBrain:
     def has_moved(self):
         if self._by_passing:
             self._memory_since_blocked.append(self._host.get_position())
+            if self._get_distance_from_end() < self._distance_when_blocked:
+                self._by_passing = False
+                self._memory_since_blocked = []
 
     def advance(self):
         if not self._by_passing:
             try:
                 advance_vector = self._get_advance_vector()
-            except Blocked as exc:
+            except Blocked:
                 self._by_passing = True
-                self._distance_when_blocked = self._distance_from_end()
+                self._distance_when_blocked = self._get_distance_from_end()
                 return self.advance()
         else:
-            advance_vector = self._get_by_pass_advance_vector()
+            try:
+                advance_vector = self._get_by_pass_advance_vector()
+            except AlreadyWalkedAround:
+                self._memory_since_blocked = []
+                return self.advance()
+
         self._host.move_to(advance_vector)
 
-    def _distance_from_end(self):
-        return (self._home_vector[0] + self._home_vector[1]) / 2
+    def _get_distance_from_end(self):
+        return abs((self._home_vector[0] + self._home_vector[1]) / 2)
+
+    def _get_direction_of_home(self):
+        current_position = self._host.get_position()
+        return get_direction_for_degrees(get_degree_from_north(current_position, self._end_position))
 
     def update_home_vector(self, vector):
         self._home_vector = (self._home_vector[0] - vector[0], self._home_vector[1] - vector[1])
 
     def _get_advance_vector(self):
-        current_position = self._host.get_position()
-        direction_of_home = get_direction_for_degrees(get_degree_from_north(current_position, self._end_position))
+        direction_of_home = self._get_direction_of_home()
 
         if self._feeler.direction_is_free(direction_of_home):
             return direction_modifiers[direction_of_home]
@@ -46,4 +57,21 @@ class AntBrain:
         raise Blocked()
 
     def _get_by_pass_advance_vector(self):
-        raise NotImplementedError()
+        direction_of_home = self._get_direction_of_home()
+        current_position = self._host.get_position()
+        direction_walkable = False
+        directions_tested = []
+        last_direction_tested = direction_of_home
+        while not direction_walkable:
+            try_direction = random.choice(slightly[last_direction_tested])
+            if try_direction not in directions_tested:
+                try_position = get_position_with_direction_decal(try_direction, current_position)
+                if try_position not in self._memory_since_blocked and self._feeler.direction_is_free(try_direction):
+                    return direction_modifiers[try_direction]
+            if try_direction not in directions_tested:
+                directions_tested.append(try_direction)
+
+            if len(directions_tested) > 7:
+                raise AlreadyWalkedAround()
+
+            last_direction_tested = try_direction

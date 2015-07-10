@@ -39,6 +39,17 @@ directions_degrees = {
     (337.5, 0): 11
 }
 
+slightly = {
+    10: (13, 11),
+    11: (10, 12),
+    12: (11, 15),
+    13: (10, 16),
+    15: (12, 18),
+    16: (13, 17),
+    17: (16, 18),
+    18: (15, 17),
+}
+
 
 def get_direction_for_degrees(degrees):
     if degrees < 0:
