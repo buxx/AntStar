@@ -40,11 +40,24 @@ class Grid:
             y = position[1]
             self._grid[y][x] = self.WALL
 
-    def print(self):
+    def print(self, ant):
+        ant_x, ant_y = ant.get_position()
         for y, row in enumerate(self._grid):
             display_row = list(row)
             if y == self._start[1]:
                 display_row[self._start[0]] = 'S'
             if y == self._end[1]:
                 display_row[self._end[0]] = 'X'
+            if y == ant_y:
+                display_row[ant_x] = 'a'
             print(*display_row)
+
+    def get_start_position(self):
+        return self._start
+
+    def get_end_position(self):
+        return self._end
+
+    def is_free(self, position):
+        x, y = position
+        return self._grid[y][x] is not 1
