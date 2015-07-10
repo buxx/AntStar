@@ -1,5 +1,5 @@
-from antstar.AntBrain import AntBrain
 from antstar.AntFeeler import AntFeeler
+from antstar.BuxxAntBrain import BuxxAntBrain
 
 
 class Ant:
@@ -7,7 +7,7 @@ class Ant:
     def __init__(self, start_position, end_position, grid):
         self._position = start_position
         self._feeler = AntFeeler(self, grid)
-        self._brain = AntBrain(self, start_position, end_position)
+        self._brain = BuxxAntBrain(self, start_position, end_position)
 
     def get_position(self):
         return self._position
