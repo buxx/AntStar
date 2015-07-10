@@ -42,12 +42,16 @@ class Grid:
 
     def print(self, ant):
         ant_x, ant_y = ant.get_position()
+        bypass_memory = ant.get_bypass_memory()
         for y, row in enumerate(self._grid):
             display_row = list(row)
             if y == self._start[1]:
                 display_row[self._start[0]] = 'S'
             if y == self._end[1]:
                 display_row[self._end[0]] = 'X'
+            for bypass_memory_position in bypass_memory:
+                if bypass_memory_position[1] == y:
+                    display_row[bypass_memory_position[0]] = '*'
             if y == ant_y:
                 display_row[ant_x] = 'a'
             print(*display_row)

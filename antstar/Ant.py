@@ -22,3 +22,6 @@ class Ant:
 
     def move(self):
         self._brain.advance()
+
+    def get_bypass_memory(self):
+        return self._brain.get_memory_since_blocked()

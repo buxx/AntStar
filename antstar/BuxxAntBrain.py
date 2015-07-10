@@ -20,6 +20,7 @@ class BuxxAntBrain(AntBrain):
             except Blocked:
                 self._by_passing = True
                 self._distance_when_blocked = self._get_distance_from_end()
+                self._memory_since_blocked.append(self._host.get_position())
                 return self.advance()
         else:
             try:

@@ -12,6 +12,9 @@ class AntBrain:
         self._distance_when_blocked = None
         self._feeler = self._host.get_feeler()
 
+    def get_memory_since_blocked(self):
+        return self._memory_since_blocked
+
     def has_moved(self):
         raise NotImplementedError()
 
