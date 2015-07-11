@@ -6,8 +6,8 @@ from antstar.geometry import direction_modifiers, get_position_with_direction_de
 
 class BuxxAntBrain(AntBrain):
 
-    def __init__(self, host, start_position, end_position):
-        super().__init__(host, start_position, end_position)
+    def __init__(self, host, home_vector):
+        super().__init__(host, home_vector)
         self._memory_since_blocked = []
         self._by_passing = False
         self._distance_when_blocked = None
@@ -17,27 +17,45 @@ class BuxxAntBrain(AntBrain):
     def get_memory_since_blocked(self):
         return self._memory_since_blocked
 
+    def _set_memory_since_blocked(self, memory_since_blocked):
+        self._memory_since_blocked = memory_since_blocked
+
+    def _add_memory_since_blocked(self, position):
+        self._memory_since_blocked.append(position)
+
+    def is_by_passing(self):
+        return self._by_passing
+
+    def _set_by_passing(self, by_passing):
+        self._by_passing = by_passing
+
+    def _get_distance_when_blocked(self):
+        return self._distance_when_blocked
+
+    def _set_distance_when_blocked(self, distance):
+        self._distance_when_blocked = distance
+
     def has_moved(self):
-        if self._by_passing:
-            self._memory_since_blocked.append(self._host.get_position())
-            if self._get_distance_from_end() < self._distance_when_blocked:
-                self._by_passing = False
-                self._memory_since_blocked = []
+        if self.is_by_passing():
+            self._add_memory_since_blocked(self._host.get_position())
+            if self._get_distance_from_end() < self._get_distance_when_blocked():
+                self._set_by_passing(False)
+                self._set_memory_since_blocked([])
 
     def advance(self):
-        if not self._by_passing:
+        if not self.is_by_passing():
             try:
                 advance_vector = self._get_advance_vector()
             except Blocked:
-                self._by_passing = True
-                self._distance_when_blocked = self._get_distance_from_end()
-                self._memory_since_blocked.append(self._host.get_position())
+                self._set_by_passing(True)
+                self._set_distance_when_blocked(self._get_distance_from_end())
+                self._add_memory_since_blocked(self._host.get_position())
                 return self.advance()
         else:
             try:
                 advance_vector = self._get_by_pass_advance_vector()
             except AlreadyWalkedAround:
-                self._memory_since_blocked = []
+                self._set_memory_since_blocked([])
                 return self.advance()
 
         self._host.move_to(advance_vector)
@@ -82,6 +100,6 @@ class BuxxAntBrain(AntBrain):
     def _by_pass_direction_is_possible(self, direction):
         if direction not in self._directions_tested:
                 try_position = get_position_with_direction_decal(direction, self._host.get_position())
-                if try_position not in self._memory_since_blocked and self._feeler.direction_is_free(direction):
+                if try_position not in self.get_memory_since_blocked() and self._feeler.direction_is_free(direction):
                     return True
         return False

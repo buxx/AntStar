@@ -3,7 +3,7 @@ import synergine_xyz
 
 setup(
     name='antstar',
-    version='0.1',
+    version='0.2',
     packages=find_packages(),
     install_requires=[],
     author='Bastien Sevajol',
