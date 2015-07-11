@@ -4,10 +4,10 @@ from antstar.BuxxAntBrain import BuxxAntBrain
 
 class Ant:
 
-    def __init__(self, start_position, end_position, grid):
+    def __init__(self, start_position, end_position, grid, brain=BuxxAntBrain):
         self._position = start_position
         self._feeler = AntFeeler(self, grid)
-        self._brain = BuxxAntBrain(self, start_position, end_position)
+        self._brain = brain(self, start_position, end_position)
 
     def get_position(self):
         return self._position

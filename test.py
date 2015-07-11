@@ -1,4 +1,5 @@
 from antstar.Ant import Ant
+from antstar.BuxxAntBrain import BuxxAntBrain
 from antstar.Grid import Grid
 import time
 
@@ -28,7 +29,8 @@ grid_text = """
 grid = Grid.from_string(grid_text)
 ant = Ant(start_position=grid.get_start_position(),
           end_position=grid.get_end_position(),
-          grid=grid)
+          grid=grid,
+          brain=BuxxAntBrain)
 
 grid.print(ant)
 while ant.get_position() != grid.get_end_position():
