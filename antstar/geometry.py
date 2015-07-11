@@ -1,4 +1,5 @@
-from math import degrees, acos, sqrt
+from math import degrees, acos, sqrt, hypot
+import operator
 
 NORTH = 11
 NORTH_EST = 12
@@ -81,3 +82,13 @@ def get_degree_from_north(a, b):
     if bx < ax:
         return 360 - degs
     return degs
+
+
+def get_nearest_direction(reference_position, current_position, possibles_directions):
+    possibles_directions_scores = {}
+    ref_x, ref_y = reference_position
+    for possible_direction in possibles_directions:
+        poss_x, poss_y = get_position_with_direction_decal(possible_direction, current_position)
+        possibles_directions_scores[possible_direction] = abs(hypot(ref_x - poss_x, ref_y - poss_y))
+    sorted_possibles_directions_scores = sorted(possibles_directions_scores.items(), key=operator.itemgetter(1))
+    return sorted_possibles_directions_scores[0][0]

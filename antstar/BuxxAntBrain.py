@@ -1,8 +1,8 @@
 from antstar.AntBrain import AntBrain
 from antstar.exceptions import Blocked, AlreadyWalkedAround
-from antstar.geometry import direction_modifiers, get_position_with_direction_decal, slightly
+from antstar.geometry import direction_modifiers, get_position_with_direction_decal, slightly, \
+    get_nearest_direction
 import random
-
 
 class BuxxAntBrain(AntBrain):
 
@@ -40,18 +40,26 @@ class BuxxAntBrain(AntBrain):
         raise Blocked()
 
     def _get_by_pass_advance_vector(self):
+        """
+        TODO: Very complex here !
+        :return:
+        """
         direction_of_home = self._get_direction_of_home()
+        home_position = self._get_home_position()
         current_position = self._host.get_position()
         direction_walkable = False
         directions_tested = []
         last_direction_tested = direction_of_home
         while not direction_walkable:
-            try_direction = random.choice(slightly[last_direction_tested])
+            if last_direction_tested in directions_tested:
+                slightly_available = slightly[last_direction_tested]
+                try_direction = [dir for dir in slightly_available if dir not in directions_tested][0]
+            else:
+                try_direction = get_nearest_direction(home_position, current_position, slightly[last_direction_tested])
             if try_direction not in directions_tested:
                 try_position = get_position_with_direction_decal(try_direction, current_position)
                 if try_position not in self._memory_since_blocked and self._feeler.direction_is_free(try_direction):
                     return direction_modifiers[try_direction]
-            if try_direction not in directions_tested:
                 directions_tested.append(try_direction)
 
             if len(directions_tested) > 7:

@@ -51,9 +51,9 @@ class Grid:
                 display_row[self._end[0]] = 'X'
             for bypass_memory_position in bypass_memory:
                 if bypass_memory_position[1] == y:
-                    display_row[bypass_memory_position[0]] = '*'
+                    display_row[bypass_memory_position[0]] = ','
             if y == ant_y:
-                display_row[ant_x] = 'a'
+                display_row[ant_x] = 'A'
             print(*display_row)
 
     def get_start_position(self):

@@ -30,3 +30,7 @@ class AntBrain:
 
     def update_home_vector(self, vector):
         self._home_vector = (self._home_vector[0] - vector[0], self._home_vector[1] - vector[1])
+
+    def _get_home_position(self):
+        current_position = self._host.get_position()
+        return current_position[0] + self._home_vector[0], current_position[1] + self._home_vector[1]

@@ -1,0 +1,1 @@
+* Lors du choix de la direction parmis les "a fauche" ou "a droite" prendre celuis qui rapproche le plus de l'objectf.
