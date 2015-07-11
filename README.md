@@ -28,6 +28,6 @@ for a given map:
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 ```
 
-Where ``0`` is free way, ``1`` a wall, ``S`` the start point of our ant and ``X`` the objective.
+Where ``0`` is free way, ``1`` a wall, ``S`` the start point of our ant, ``X`` the objective and ``,`` the memory of road done since blocked by a wall.
 
 [![AntStar exemple gif](https://raw.githubusercontent.com/buxx/AntStar/master/doc/antstar.gif)](https://raw.githubusercontent.com/buxx/AntStar/master/doc/antstar.gif) 

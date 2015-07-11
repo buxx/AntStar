@@ -32,7 +32,7 @@ ant = Ant(start_position=grid.get_start_position(),
 
 grid.print(ant)
 while ant.get_position() != grid.get_end_position():
-    time.sleep(0.1)
+    time.sleep(0.3)
     ant.move()
     print('')
     grid.print(ant)
