@@ -2,9 +2,15 @@ from antstar.AntBrain import AntBrain
 from antstar.exceptions import Blocked, AlreadyWalkedAround
 from antstar.geometry import direction_modifiers, get_position_with_direction_decal, slightly, \
     get_nearest_direction
-import random
+
 
 class BuxxAntBrain(AntBrain):
+
+    def __init__(self, host, start_position, end_position):
+        super().__init__(host, start_position, end_position)
+        self._memory_since_blocked = []
+        self._by_passing = False
+        self._distance_when_blocked = None
 
     def has_moved(self):
         if self._by_passing:
