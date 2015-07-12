@@ -1,5 +1,6 @@
 from antstar.AntFeeler import AntFeeler
 from antstar.BuxxAntBrain import BuxxAntBrain
+from antstar.geometry import direction_modifiers
 
 
 class Ant:
@@ -13,7 +14,8 @@ class Ant:
     def get_position(self):
         return self._position
 
-    def move_to(self, vector):
+    def move_to(self, direction):
+        vector = direction_modifiers[direction]
         self._brain.update_home_vector_with_vector(vector)
         self._position = (self._position[0] + vector[0], self._position[1] + vector[1])
         self._brain.has_moved()

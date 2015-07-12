@@ -47,7 +47,7 @@ class BuxxAntBrain(AntBrain):
     def advance(self):
         if not self.is_by_passing():
             try:
-                advance_vector = self._get_advance_vector()
+                direction = self._get_advance_direction()
             except Blocked:
                 self._set_by_passing(True)
                 self._set_distance_when_blocked(self._get_distance_from_end())
@@ -55,22 +55,22 @@ class BuxxAntBrain(AntBrain):
                 return self.advance()
         else:
             try:
-                advance_vector = self._get_by_pass_advance_vector()
+                direction = self._get_by_pass_advance_direction()
             except AlreadyWalkedAround:
                 self._set_memory_since_blocked([])
                 return self.advance()
 
-        self._host.move_to(advance_vector)
+        self._host.move_to(direction)
 
-    def _get_advance_vector(self):
+    def _get_advance_direction(self):
         direction_of_home = self._get_direction_of_home()
 
         if self._feeler.direction_is_free(direction_of_home):
-            return direction_modifiers[direction_of_home]
+            return direction_of_home
 
         raise Blocked()
 
-    def _get_by_pass_advance_vector(self):
+    def _get_by_pass_advance_direction(self):
         """
         TODO: Very complex here !
         :return:
@@ -82,7 +82,7 @@ class BuxxAntBrain(AntBrain):
             try_direction = self._get_new_by_pass_try_direction()
 
             if self._by_pass_direction_is_possible(try_direction):
-                return direction_modifiers[try_direction]
+                return try_direction
 
             self._directions_tested.append(try_direction)
             if len(self._directions_tested) > 7:
