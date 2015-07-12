@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-import synergine_xyz
+import antstar
 
 setup(
     name='antstar',
