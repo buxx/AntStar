@@ -23,7 +23,7 @@ class BuxxAntBrain(AntBrain):
     def _add_memory_since_blocked(self, position):
         memory_since_blocked = self.get_memory_since_blocked()
         memory_since_blocked.append(position)
-        self._set_memory_since_blocked(position)
+        self._set_memory_since_blocked(memory_since_blocked)
 
     def is_by_passing(self):
         return self._by_passing
