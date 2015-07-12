@@ -1,6 +1,13 @@
 from setuptools import setup, find_packages
 import antstar
 
+try:
+    import pypandoc
+    description = pypandoc.convert('README.md', 'rst')
+except (IOError, ImportError):
+    print('pypandoc not found')
+    description = open('README.md').read()
+
 setup(
     name='antstar',
     version='0.2.1',
@@ -9,7 +16,7 @@ setup(
     author='Bastien Sevajol',
     author_email="antstar@bux.fr",
     description='Found path in 2d environment as blind ant',
-    long_description=open('README.md').read(),
+    long_description=description,
     include_package_data=True,
     url='https://github.com/buxx/AntStar',
     # https://pypi.python.org/pypi?%3Aaction=list_classifiers.
