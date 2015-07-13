@@ -1,11 +1,11 @@
 from antstar.AntFeeler import AntFeeler
-from antstar.BuxxAntBrain import BuxxAntBrain
+from antstar.DirectionByPassAntBrain import DirectionByPassAntBrain
 from antstar.geometry import direction_modifiers
 
 
 class Ant:
 
-    def __init__(self, start_position, end_position, grid, brain=BuxxAntBrain):
+    def __init__(self, start_position, end_position, grid, brain=DirectionByPassAntBrain):
         self._position = start_position
         self._feeler = AntFeeler(self, grid)
         home_vector = (-(start_position[0] - end_position[0]), -(start_position[1] - end_position[1]))
