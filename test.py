@@ -3,7 +3,7 @@ from antstar.BuxxAntBrain import BuxxAntBrain
 from antstar.Grid import Grid
 import time
 
-grid_text = """
+grid_text_a = """
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 X 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -26,15 +26,45 @@ grid_text = """
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 """
 
-grid = Grid.from_string(grid_text)
-ant = Ant(start_position=grid.get_start_position(),
-          end_position=grid.get_end_position(),
-          grid=grid,
-          brain=BuxxAntBrain)
+grid_text_b = """
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 S 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 0 1 1 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 1 0 1 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 1 0 1 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 X 0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 0 0 0 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 1 1 1 1 1 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+"""
 
-grid.print(ant)
-while ant.get_position() != grid.get_end_position():
-    time.sleep(0.3)
-    ant.move()
-    print('')
+grids_text = [grid_text_a, grid_text_b]
+
+for grid_text in grids_text:
+
+    grid = Grid.from_string(grid_text)
+    ant = Ant(start_position=grid.get_start_position(),
+              end_position=grid.get_end_position(),
+              grid=grid,
+              brain=BuxxAntBrain)
+
     grid.print(ant)
+    while ant.get_position() != grid.get_end_position():
+        time.sleep(0.1)
+        ant.move()
+        print('')
+        grid.print(ant)
