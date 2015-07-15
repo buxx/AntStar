@@ -1,6 +1,5 @@
-from antstar.AntBrain import AntBrain
 from antstar.ByPassAntBrain import ByPassAntBrain
-from antstar.exceptions import Blocked, AlreadyWalkedAround
+from antstar.exceptions import AlreadyWalkedAround
 from antstar.geometry import get_position_with_direction_decal, slightly, get_nearest_direction, directions
 
 

@@ -1,4 +1,5 @@
 from antstar.geometry import get_degree_from_north, get_direction_for_degrees
+import math
 
 
 class AntBrain:
@@ -27,7 +28,7 @@ class AntBrain:
 
     def _get_distance_from_end(self):
         home_vector = self._get_home_vector()
-        return abs((home_vector[0] + home_vector[1]) / 2)
+        return math.hypot(home_vector[0], home_vector[1])
 
     def _get_direction_of_home(self):
         current_position = self._host.get_position()

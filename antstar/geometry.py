@@ -27,6 +27,17 @@ direction_modifiers = {
     18: (1, 1),
 }
 
+modifiers_directions = {
+    (-1, -1): 10,
+    (0, -1): 11,
+    (1, -1): 12,
+    (-1, 0): 13,
+    (1, 0): 15,
+    (-1, 1): 16,
+    (0, 1): 17,
+    (1, 1): 18,
+}
+
 directions_degrees = {
     (0, 22.5): 11,
     (22.5, 67): 12,
@@ -67,6 +78,11 @@ def get_position_with_direction_decal(direction, point):
     return x + directions_modifier[0], y + directions_modifier[1]
 
 
+def get_direction_between_near_points(a, b):
+    decal = (b[0] - a[0], b[1] - a[1])
+    return modifiers_directions[decal]
+
+
 def get_degree_from_north(a, b):
     if a == b:
         return 0
@@ -92,3 +108,11 @@ def get_nearest_direction(reference_position, current_position, possibles_direct
         possibles_directions_scores[possible_direction] = abs(hypot(ref_x - poss_x, ref_y - poss_y))
     sorted_possibles_directions_scores = sorted(possibles_directions_scores.items(), key=operator.itemgetter(1))
     return sorted_possibles_directions_scores[0][0]
+
+
+def around_positions_of(position):
+    return [get_position_with_direction_decal(direction, position) for direction in directions]
+
+
+def distance_from_points(a, b):
+    return abs(((a[0] - b[0]) + (a[1] - b[1]))/2)

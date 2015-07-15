@@ -1,9 +1,13 @@
 from antstar.Ant import Ant
 from antstar.DirectionByPassAntBrain import DirectionByPassAntBrain
+from antstar.GlueWallAntBrain import GlueWallAntBrain
 from antstar.Grid import Grid
 import time
 
-grid_text_a = """
+brains = [GlueWallAntBrain, DirectionByPassAntBrain]
+
+grids = {
+    'Map A': """
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 X 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -24,9 +28,33 @@ grid_text_a = """
 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 S 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-"""
-
-grid_text_b = """
+""",
+    'Map B': """
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 S 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 1 0 1 0 0 0 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 0 1 0 1 0 0 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 0 0
+0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 1 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 1 0 1 0 1 0 1 0 1 0
+0 0 0 0 0 0 0 0 0 X 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+""",
+    'Map C': """
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
@@ -50,21 +78,26 @@ grid_text_b = """
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-"""
+"""}
 
-grids_text = [grid_text_a, grid_text_b]
+for grid_name in grids:
+    for brain_class in brains:
 
-for grid_text in grids_text:
+        grid_text = grids[grid_name]
 
-    grid = Grid.from_string(grid_text)
-    ant = Ant(start_position=grid.get_start_position(),
-              end_position=grid.get_end_position(),
-              grid=grid,
-              brain=DirectionByPassAntBrain)
+        grid = Grid.from_string(grid_text)
+        ant = Ant(start_position=grid.get_start_position(),
+                  end_position=grid.get_end_position(),
+                  grid=grid,
+                  brain=brain_class)
 
-    grid.print(ant)
-    while ant.get_position() != grid.get_end_position():
-        time.sleep(0.1)
-        ant.move()
-        print('')
+        print('%s with %s' % (grid_name, brain_class.__name__))
         grid.print(ant)
+        steps = 0
+        while ant.get_position() != grid.get_end_position() and steps < 200:
+            time.sleep(0.15)
+            ant.move()
+            steps += 1
+            print('')
+            print('%s with %s (step %s)' % (grid_name, brain_class.__name__, str(steps)))
+            grid.print(ant)
