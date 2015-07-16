@@ -7,11 +7,15 @@ class ByPassAntBrain(AntBrain):
     def __init__(self, host, home_vector):
         super().__init__(host, home_vector)
         self._memory_since_blocked = []
+        self._clean_memory = False
         self._by_passing = False
         self._distance_when_blocked = None
 
     def get_memory_since_blocked(self):
         return self._memory_since_blocked
+
+    def get_last_memory_since_blocked(self):
+        return self._memory_since_blocked[-2] # TODO: Comme a lautre endroit, il y a un decallage
 
     def _set_memory_since_blocked(self, memory_since_blocked):
         self._memory_since_blocked = memory_since_blocked
@@ -38,7 +42,11 @@ class ByPassAntBrain(AntBrain):
             self._add_memory_since_blocked(self._host.get_position())
             if self._get_distance_from_end() < self._get_distance_when_blocked():
                 self._set_by_passing(False)
-                self._set_memory_since_blocked([])
+                if self._clean_memory:
+                    self._set_memory_since_blocked([])
+        else:
+            if not self._clean_memory:
+                self._add_memory_since_blocked(self._host.get_position())
 
     def advance(self):
         if not self.is_by_passing():
