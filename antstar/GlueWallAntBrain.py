@@ -43,30 +43,60 @@ class GlueWallAntBrain(ByPassAntBrain):
         self._is_re_walking = is_re_walking
 
     def _get_advance_direction(self):
+        """
+
+        :return: int direction
+        """
         try:
             return super()._get_advance_direction()
         except Blocked:
-            home_direction = self._get_direction_of_home()
-            current_position = self._host.get_position()
-            wall_position = decal(home_direction, current_position)
-            self._set_current_wall_square(wall_position)
+            self._trig_blocked()
             raise
 
+    def _trig_blocked(self):
+        """
+
+        Update attributes to start a by pass
+
+        :return:
+        """
+        home_direction = self._get_direction_of_home()
+        current_position = self._host.get_position()
+        wall_position = decal(home_direction, current_position)
+        self._set_current_wall_square(wall_position)
+
     def _get_by_pass_advance_direction(self):
+        """
+
+        Return a direction for bypass mode
+
+        :return: int direction
+        """
         self._update_host_around_positions()
 
-        # 1: On cherche a suivre le mur courant
         try:
+            # Thirst we try to follow the current wall
             return self._get_direction_for_walls([self._get_current_wall_position()])
         except Blocked:
             next_walls_positions = self._get_next_visible_walls_positions()
             try:
+                # If we can't follow current wall, follow next walls
                 return self._get_direction_for_walls(next_walls_positions, can_re_walk=True)
             except Blocked:
+                # Absolutely blocked, start a new walk
                 self._set_memory_since_blocked([])
                 return self._get_by_pass_advance_direction()
 
     def _get_direction_for_walls(self, walls_positions, can_re_walk=False, re_walk=False):
+        """
+
+        Return possibles directions for parameter walls
+
+        :param walls_positions: positions of looked walls
+        :param can_re_walk: if no road found, allow retry with re walk
+        :param re_walk: allow walk on already walked positions
+        :return: direction
+        """
         for next_wall_position in walls_positions:
             to_wall_directions = self._get_to_wall_directions(next_wall_position, can_re_walk=re_walk)
             if to_wall_directions:
@@ -80,6 +110,12 @@ class GlueWallAntBrain(ByPassAntBrain):
         raise Blocked()
 
     def _get_next_visible_walls_positions(self):
+        """
+
+        Return positions of ant visible walls
+
+        :return: list: list of positions
+        """
         walls_to_look_around = [self._get_current_wall_position()]
         for wall_to_look_around in walls_to_look_around:
             around_wall_positions = around_positions_of(wall_to_look_around)
@@ -93,8 +129,14 @@ class GlueWallAntBrain(ByPassAntBrain):
         return walls_to_look_around
 
     def _get_to_wall_directions(self, wall_position, can_re_walk=False):
-        # directions: ou on n'a pas marché (sauf si), adjsascente au mur en cours
-        # TODO: Cache de position around ? etc ? generateurs!
+        """
+
+        Return possible directions for given wall
+
+        :param wall_position: position of looked wall
+        :param can_re_walk: allow directions on already walked position
+        :return: list of directions
+        """
         host_position = self._host.get_position()
         around_this_wall_positions = around_positions_of(wall_position)
 
