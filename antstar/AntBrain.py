@@ -12,6 +12,9 @@ class AntBrain:
         self._end_position = current_position[0] + home_vector[0], current_position[1] + home_vector[1]
         self._feeler = self._host.get_feeler()
 
+    def get_host(self):
+        return self._host
+
     def _get_home_vector(self):
         return self._home_vector
 
@@ -43,3 +46,12 @@ class AntBrain:
         current_position = self._host.get_position()
         home_vector = self._get_home_vector()
         return current_position[0] + home_vector[0], current_position[1] + home_vector[1]
+
+    def erase(self):
+        """
+
+        Override here to clean data
+
+        :return:
+        """
+        pass

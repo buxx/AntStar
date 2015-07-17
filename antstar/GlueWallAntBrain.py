@@ -42,6 +42,11 @@ class GlueWallAntBrain(ByPassAntBrain):
     def _set_is_re_walking(self, is_re_walking):
         self._is_re_walking = is_re_walking
 
+    def erase(self):
+        super().erase()
+        self._set_current_wall_square(None)
+        self._set_is_re_walking(False)
+
     def _get_advance_direction(self):
         """
 

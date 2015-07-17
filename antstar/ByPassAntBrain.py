@@ -37,6 +37,12 @@ class ByPassAntBrain(AntBrain):
     def _set_distance_when_blocked(self, distance):
         self._distance_when_blocked = distance
 
+    def erase(self):
+        super().erase()
+        self._set_memory_since_blocked([])
+        self._set_by_passing(False)
+        self._set_distance_when_blocked(None)
+
     def has_moved(self):
         if self.is_by_passing():
             self._add_memory_since_blocked(self._host.get_position())
