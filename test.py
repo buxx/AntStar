@@ -1,8 +1,9 @@
+import time
+
 from antstar.Ant import Ant
-from antstar.DirectionByPassAntBrain import DirectionByPassAntBrain
 from antstar.GlueWallAntBrain import GlueWallAntBrain
 from antstar.Grid import Grid
-import time
+
 
 brains = [GlueWallAntBrain]#, DirectionByPassAntBrain]
 
@@ -148,7 +149,7 @@ for grid_name in grids:
             grid.print(ant)
             steps = 0
             while ant.get_position() != grid.get_end_position() and steps < 200:
-                time.sleep(0.15)
+                time.sleep(0.1)
                 ant.move()
                 steps += 1
                 print('')

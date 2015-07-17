@@ -1,5 +1,6 @@
-from antstar.geometry import get_degree_from_north, get_direction_for_degrees
 import math
+
+from antstar.geometry import get_degree_from_north, get_direction_for_degrees
 
 
 class AntBrain:

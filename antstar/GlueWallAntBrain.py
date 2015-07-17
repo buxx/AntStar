@@ -1,21 +1,10 @@
 from antstar.ByPassAntBrain import ByPassAntBrain
-from antstar.exceptions import Blocked, AlreadyWalkedAround
-from antstar.geometry import get_position_with_direction_decal as decal, directions, get_direction_between_near_points, \
+from antstar.exceptions import Blocked
+from antstar.geometry import get_position_with_direction_decal as decal, get_direction_between_near_points, \
     around_positions_of
 
 
 class GlueWallAntBrain(ByPassAntBrain):
-    """
-    Aller sur une case vide que si:
-      * cette case est adjascente a la case de mur en cours
-      ou
-      * cette case est adjascente a la case d'un mur adjascente au mur en cours
-    Interdire cette case vide si;
-      * On est déjà aller dessus et qu'il y a une autre case adjascente (crit. au dessus)
-
-      TODO: Pas maximums!
-      TODO: generateurs
-    """
 
     def __init__(self, host, home_vector):
         super().__init__(host, home_vector)
@@ -77,31 +66,6 @@ class GlueWallAntBrain(ByPassAntBrain):
                 self._set_memory_since_blocked([])
                 return self._get_by_pass_advance_direction()
 
-        # TODO: Organiser le ci-dessous comme
-        # [(wall_pos, [to_wall_direction, ...], (...)]
-        # De manière à prendre en premier la direction la plus proche de la direction prise précedamment
-
-        for next_wall_position in next_walls_positions:
-            to_wall_directions = self._get_to_wall_directions(next_wall_position)
-            if to_wall_directions:
-                self._set_current_wall_square(next_wall_position)
-                return to_wall_directions[0]
-
-        # memory_since_blocked = self.get_memory_since_blocked()
-        # if memory_since_blocked:
-        #     last_move_key = len(memory_since_blocked) - 3  # why 3 ? 2 no ? (duplicated in memory)
-        #     del(memory_since_blocked[last_move_key])
-        #     self._set_memory_since_blocked(memory_since_blocked)
-        #     return self._get_by_pass_advance_direction()
-        #
-        # for next_wall_position in next_walls_positions:
-        #     to_wall_directions = self._get_to_wall_directions(next_wall_position, can_re_walk=True)
-        #     if to_wall_directions:
-        #         self._set_current_wall_square(next_wall_position)
-        #         return to_wall_directions[0]
-
-        raise Exception('Should not be here')
-
     def _get_direction_for_walls(self, walls_positions, can_re_walk=False, re_walk=False):
         for next_wall_position in walls_positions:
             to_wall_directions = self._get_to_wall_directions(next_wall_position, can_re_walk=re_walk)
@@ -111,12 +75,6 @@ class GlueWallAntBrain(ByPassAntBrain):
                 return to_wall_directions[0]
 
         if can_re_walk:
-
-            # memory_since_blocked = self.get_memory_since_blocked()
-            # if memory_since_blocked:
-            #     last_move_key = len(memory_since_blocked) - 3  # why 3 ? 2 no ? => (duplicated in memory)
-            #     del(memory_since_blocked[last_move_key])
-            #     self._set_memory_since_blocked(memory_since_blocked)
             return self._get_direction_for_walls(walls_positions, re_walk=True)
 
         raise Blocked()
@@ -155,87 +113,3 @@ class GlueWallAntBrain(ByPassAntBrain):
 
         return [get_direction_between_near_points(host_position, pos)
                 for pos in visible_around_this_wall_positions]
-
-    # def _get_by_pass_advance_direction(self):
-    #     near_wall_directions = self._get_near_wall_directions()
-    #
-    #     if not near_wall_directions:
-    #         raise AlreadyWalkedAround()
-    #
-    #     if len(near_wall_directions) == 1:
-    #         return near_wall_directions[0]
-    #
-    #     for near_wall_direction in near_wall_directions:
-    #         if near_wall_direction not in self.get_memory_since_blocked():
-    #             return near_wall_direction
-    #
-    #     raise AlreadyWalkedAround()
-    #
-    #     # Dans ces directions, prendre que si [que 1 et deja marché] ou pas marché
-    #
-    # def _get_near_wall_directions(self):
-    #     """
-    #     :return: List of directions who are near the current wall or near a next wall
-    #     """
-    #     return [direction for direction in directions if self._direction_is_free_and_glue_wall(direction)]
-    #
-    # def _direction_is_free_and_glue_wall(self, direction):
-    #     if not self._feeler.direction_is_free(direction):
-    #         return False
-    #
-    #     current_position = self._host.get_position()
-    #     will_position = decal(direction, current_position)
-    #
-    #     if self._position_is_near_current_wall(will_position):
-    #         return True
-    #
-    #     if self._position_is_near_next_wall(will_position):
-    #         return True
-    #
-    #     return False
-    #
-    # def _position_is_near_current_wall(self, position):
-    #     current_wall_position = self._get_current_wall_position()
-    #     around_wall_positions = [decal(direction, current_wall_position) for direction in directions]
-    #     return position in around_wall_positions
-    #
-    # def _position_is_near_next_wall(self, position):
-    #     next_walls_positions = self._get_next_walls_position()
-    #
-    #
-    #
-    #     next_walls_around_positions = []
-    #     # TODO: [] double ?
-    #     for next_wall_position in next_walls_positions:
-    #         for next_wall_around_position in [decal(direction, next_wall_position) for direction in directions]:
-    #             next_walls_around_positions.append(next_wall_around_position)
-    #
-    #     return position in next_walls_around_positions
-    #
-    # def _get_next_walls_position(self):
-    #     """
-    #
-    #     Return only visible wall !
-    #
-    #     :return:
-    #     """
-    #     current_wall_position = self._get_current_wall_position()
-    #     current_ant_position = self._host.get_position()
-    #     around_ant_positions = [decal(direction, current_ant_position) for direction in directions]
-    #     around_current_wall_positions = [decal(direction, current_wall_position) for direction in directions]
-    #     around_current_wall_positions_near_ant = list(filter(lambda pos: pos in around_ant_positions, around_current_wall_positions))
-    #     next_walls_positions = list(filter(lambda pos: not self._feeler.direction_is_free(get_direction_between_near_points(current_ant_position, pos)), around_current_wall_positions_near_ant))
-    #     return next_walls_positions
-    #
-    #
-    #     possibles_movements = {}
-    #
-    #     for next_wall_position in next_walls_positions:
-    #         around_next_wall_positions = [decal(direction, current_ant_position) for direction in directions]
-    #         for next_wall_around_position in around_next_wall_positions:
-    #             if next_wall_around_position in around_current_wall_positions:
-    #                 if next_wall_around_position not in possibles_movements:
-    #                     possibles_movements[next_wall_position] = []
-    #                 possibles_movements[next_wall_position].append(next_wall_around_position)
-    #
-    #     return possibles_movements
