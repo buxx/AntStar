@@ -99,10 +99,10 @@ class GlueWallAntBrain(ByPassAntBrain):
         """
         for next_wall_position in walls_positions:
             to_wall_directions = self._get_to_wall_directions(next_wall_position, can_re_walk=re_walk)
-            if to_wall_directions:
+            for to_wall_direction in to_wall_directions:
                 self._set_current_wall_square(next_wall_position)
                 self._set_is_re_walking(re_walk)
-                return to_wall_directions[0]
+                return to_wall_direction
 
         if can_re_walk:
             return self._get_direction_for_walls(walls_positions, re_walk=True)
@@ -119,11 +119,11 @@ class GlueWallAntBrain(ByPassAntBrain):
         walls_to_look_around = [self._get_current_wall_position()]
         for wall_to_look_around in walls_to_look_around:
             around_wall_positions = around_positions_of(wall_to_look_around)
-            around_wall_walls = [pos for pos in around_wall_positions
+            around_wall_walls = (pos for pos in around_wall_positions
                                  if self._position_is_around_host(pos)
                                  and not self._feeler.position_is_free(pos)
                                  and pos not in walls_to_look_around
-                                 and pos != self._get_current_wall_position()]
+                                 and pos != self._get_current_wall_position())
             walls_to_look_around.extend(around_wall_walls)
 
         return walls_to_look_around
@@ -137,21 +137,35 @@ class GlueWallAntBrain(ByPassAntBrain):
         :param can_re_walk: allow directions on already walked position
         :return: list of directions
         """
-        host_position = self._host.get_position()
         around_this_wall_positions = around_positions_of(wall_position)
 
-        visible_around_this_wall_positions = []
-        for position in around_this_wall_positions:
-            if self._position_is_around_host(position) and self._feeler.position_is_free(position):
-                visible_around_this_wall_positions.append(position)
+        # Keep positions in host visible field
+        visible_around_this_wall_positions = self._reduce_positions_by_host_visibility(around_this_wall_positions)
 
         if not can_re_walk:
-            return [get_direction_between_near_points(host_position, pos)
-                    for pos in visible_around_this_wall_positions
-                    if pos not in self.get_memory_since_blocked()]
+            # We can(t re walk, so we remove positions already walked
+            free_positions = self._reduce_positions_by_not_walked(visible_around_this_wall_positions)
+            return self._change_positions_to_directions(free_positions)
         elif self.is_re_walking():
-            visible_around_this_wall_positions = [pos for pos in visible_around_this_wall_positions
-                                                  if not pos == self.get_last_memory_since_blocked()]
+            # When re walking, we forbid to go back
+            visible_around_this_wall_positions = self._reduce_by_not_last_walk(visible_around_this_wall_positions)
 
-        return [get_direction_between_near_points(host_position, pos)
-                for pos in visible_around_this_wall_positions]
+        return self._change_positions_to_directions(visible_around_this_wall_positions)
+
+    def _reduce_positions_by_host_visibility(self, positions):
+        return (pos for pos in positions
+                if self._position_is_around_host(pos)
+                and self._feeler.position_is_free(pos))
+
+    def _reduce_positions_by_not_walked(self, positions):
+        return (pos for pos in positions
+                if pos not in self.get_memory_since_blocked())
+
+    def _reduce_by_not_last_walk(self, positions):
+        return (pos for pos in positions
+                if not pos == self.get_last_memory_since_blocked())
+
+    def _change_positions_to_directions(self, positions):
+        host_position = self._host.get_position()
+        return (get_direction_between_near_points(host_position, pos)
+                for pos in positions)
