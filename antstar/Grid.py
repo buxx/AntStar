@@ -1,14 +1,14 @@
 class Grid:
 
     FREE = 0
-    WALL = 1
+    WALL = '#'
 
     @classmethod
     def from_string(cls, string):
         map_text_rows = [text_row.replace(' ', '') for text_row in filter(None, string.split("\n"))]
         start = next(cls.find_position_in_text('S', map_text_rows))
         end = next(cls.find_position_in_text('X', map_text_rows))
-        wall_positions = cls.find_position_in_text('1', map_text_rows)
+        wall_positions = cls.find_position_in_text(cls.WALL, map_text_rows)
 
         grid = cls(
             width=len(map_text_rows[0]),
@@ -54,6 +54,8 @@ class Grid:
                     display_row[bypass_memory_position[0]] = ','
             if y == ant_y:
                 display_row[ant_x] = 'A'
+
+            display_row = [i if i is not 0 else ' ' for i in display_row]
             print(*display_row)
 
     def get_start_position(self):
@@ -65,6 +67,6 @@ class Grid:
     def is_free(self, position):
         x, y = position
         try:
-            return self._grid[y][x] is not 1
+            return self._grid[y][x] is not self.WALL
         except IndexError:
             return False
