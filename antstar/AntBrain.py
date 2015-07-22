@@ -24,7 +24,7 @@ class AntBrain:
     def _get_end_position(self):
         return self._end_position
 
-    def has_moved(self):
+    def _has_moved(self):
         raise NotImplementedError()
 
     def advance(self):

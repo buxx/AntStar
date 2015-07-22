@@ -1,5 +1,6 @@
 from antstar.AntBrain import AntBrain
 from antstar.exceptions import Blocked, AlreadyWalkedAround
+from antstar.geometry import direction_modifiers
 
 
 class ByPassAntBrain(AntBrain):
@@ -43,7 +44,10 @@ class ByPassAntBrain(AntBrain):
         self._set_by_passing(False)
         self._set_distance_when_blocked(None)
 
-    def has_moved(self):
+    def _has_moved(self, direction):
+        vector = direction_modifiers[direction]
+        self.update_home_vector_with_vector(vector)
+
         if self.is_by_passing():
             self._add_memory_since_blocked(self._host.get_position())
             if self._get_distance_from_end() < self._get_distance_when_blocked():
@@ -61,7 +65,6 @@ class ByPassAntBrain(AntBrain):
             except Blocked:
                 self._set_by_passing(True)
                 self._set_distance_when_blocked(self._get_distance_from_end())
-                #self._add_memory_since_blocked(self._host.get_position())
                 return self.advance()
         else:
             try:
@@ -71,6 +74,7 @@ class ByPassAntBrain(AntBrain):
                 return self.advance()
 
         self._host.move_to(direction)
+        self._has_moved(direction)
 
     def _get_advance_direction(self):
         direction_of_home = self._get_direction_of_home()
