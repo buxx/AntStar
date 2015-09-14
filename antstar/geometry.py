@@ -114,5 +114,14 @@ def around_positions_of(position):
     return [get_position_with_direction_decal(direction, position) for direction in directions]
 
 
+def direct_around_positions_of(position):
+    return [
+        get_position_with_direction_decal(NORTH, position),
+        get_position_with_direction_decal(EST, position),
+        get_position_with_direction_decal(WEST, position),
+        get_position_with_direction_decal(SOUTH, position)
+    ]
+
+
 def distance_from_points(a, b):
     return abs(((a[0] - b[0]) + (a[1] - b[1]))/2)

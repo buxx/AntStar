@@ -1,6 +1,6 @@
 from antstar.AntBrain import AntBrain
 from antstar.exceptions import Blocked, AlreadyWalkedAround
-from antstar.geometry import direction_modifiers
+from antstar.geometry import direction_modifiers, around_positions_of
 
 
 class ByPassAntBrain(AntBrain):
@@ -11,6 +11,8 @@ class ByPassAntBrain(AntBrain):
         self._clean_memory = False
         self._by_passing = False
         self._distance_when_blocked = None
+        self._around_host_positions = []
+        self._memory_length = None
 
     def get_memory_since_blocked(self):
         return self._memory_since_blocked
@@ -18,13 +20,26 @@ class ByPassAntBrain(AntBrain):
     def get_last_memory_since_blocked(self):
         return self._memory_since_blocked[-2]
 
+    def _update_memory_since_blocked(self, memory_since_blocked):
+        if self._memory_length is not None:
+            self._set_memory_since_blocked(memory_since_blocked[-self._memory_length:])
+        else:
+            self._set_memory_since_blocked(memory_since_blocked)
+
     def _set_memory_since_blocked(self, memory_since_blocked):
         self._memory_since_blocked = memory_since_blocked
 
-    def _add_memory_since_blocked(self, position):
+    def _update_host_around_positions(self):
+        self._around_host_positions = around_positions_of(self._host.get_position())
+
+    def _add_memory_since_blocked(self):
+        current_position_memory = self._get_current_position_memory()
         memory_since_blocked = self.get_memory_since_blocked()
-        memory_since_blocked.append(position)
-        self._set_memory_since_blocked(memory_since_blocked)
+        memory_since_blocked.append(current_position_memory)
+        self._update_memory_since_blocked(memory_since_blocked)
+
+    def _get_current_position_memory(self):
+        return self._host.get_position()
 
     def is_by_passing(self):
         return self._by_passing
@@ -49,14 +64,14 @@ class ByPassAntBrain(AntBrain):
         self.update_home_vector_with_vector(vector)
 
         if self.is_by_passing():
-            self._add_memory_since_blocked(self._host.get_position())
+            self._add_memory_since_blocked()
             if self._get_distance_from_end() < self._get_distance_when_blocked():
                 self._set_by_passing(False)
                 if self._clean_memory:
                     self._set_memory_since_blocked([])
         else:
             if not self._clean_memory:
-                self._add_memory_since_blocked(self._host.get_position())
+                self._add_memory_since_blocked()
 
     def advance(self):
         if not self.is_by_passing():

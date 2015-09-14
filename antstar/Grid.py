@@ -55,6 +55,12 @@ class Grid:
             if y == ant_y:
                 display_row[ant_x] = 'A'
 
+            # DEV: Protected usage for debug (and StickWallAntBrain depend)
+            if ant._brain._current_wall_position and y == ant._brain._current_wall_position[1]:
+                display_row[ant._brain._current_wall_position[0]] = 'O'
+            if ant._brain._previous_wall_position and y == ant._brain._previous_wall_position[1]:
+                display_row[ant._brain._previous_wall_position[0]] = 'o'
+
             display_row = [i if i is not 0 else ' ' for i in display_row]
             print(*display_row)
 

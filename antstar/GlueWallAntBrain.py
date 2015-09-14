@@ -1,7 +1,7 @@
 from antstar.ByPassAntBrain import ByPassAntBrain
 from antstar.exceptions import Blocked
 from antstar.geometry import get_position_with_direction_decal as decal, get_direction_between_near_points, \
-    around_positions_of
+    around_positions_of, distance_from_points
 
 
 class GlueWallAntBrain(ByPassAntBrain):
@@ -9,7 +9,6 @@ class GlueWallAntBrain(ByPassAntBrain):
     def __init__(self, host, home_vector):
         super().__init__(host, home_vector)
         self._current_wall_square_position = None
-        self._around_host_positions = []
         self._is_re_walking = False
 
     def _get_current_wall_position(self):
@@ -30,8 +29,7 @@ class GlueWallAntBrain(ByPassAntBrain):
         if not by_passing:
             self._set_current_wall_square(None)
 
-    def _update_host_around_positions(self):
-        self._around_host_positions = around_positions_of(self._host.get_position())
+
 
     def _position_is_around_host(self, position):
         return position in self._around_host_positions
@@ -83,14 +81,19 @@ class GlueWallAntBrain(ByPassAntBrain):
             # Thirst we try to follow the current wall
             return self._get_direction_for_walls([self._get_current_wall_position()])
         except Blocked:
-            next_walls_positions = self._get_next_visible_walls_positions()
+            next_walls_positions = self._get_next_visible_walls_positions(self._get_current_wall_position())
             try:
                 # If we can't follow current wall, follow next walls
                 return self._get_direction_for_walls(next_walls_positions, can_re_walk=True)
             except Blocked:
-                # Absolutely blocked, start a new walk
-                self._set_memory_since_blocked([])
-                return self._get_by_pass_advance_direction()
+                # Absolutely blocked, test if change wall is better
+                other_around_walls_positions = self._get_next_visible_walls_positions(self._host.get_position())
+                try:
+                    return self._get_direction_for_walls(other_around_walls_positions)
+                except Blocked:
+                    # Absolutely blocked, start a new walk
+                    self._set_memory_since_blocked([])
+                    return self._get_by_pass_advance_direction()
 
     def _get_direction_for_walls(self, walls_positions, can_re_walk=False, re_walk=False):
         """
@@ -114,14 +117,14 @@ class GlueWallAntBrain(ByPassAntBrain):
 
         raise Blocked()
 
-    def _get_next_visible_walls_positions(self):
+    def _get_next_visible_walls_positions(self, from_position):
         """
 
         Return positions of ant visible walls
 
         :return: list: list of positions
         """
-        walls_to_look_around = [self._get_current_wall_position()]
+        walls_to_look_around = [from_position]
         for wall_to_look_around in walls_to_look_around:
             around_wall_positions = around_positions_of(wall_to_look_around)
             around_wall_walls = (pos for pos in around_wall_positions
@@ -148,12 +151,14 @@ class GlueWallAntBrain(ByPassAntBrain):
         visible_around_this_wall_positions = self._reduce_positions_by_host_visibility(around_this_wall_positions)
 
         if not can_re_walk:
-            # We can(t re walk, so we remove positions already walked
-            free_positions = self._reduce_positions_by_not_walked(visible_around_this_wall_positions)
+            # We can't re walk, so we remove positions already walked
+            free_positions = self._reduce_positions_by_not_walked(visible_around_this_wall_positions, wall_position)
             return self._change_positions_to_directions(free_positions)
         elif self.is_re_walking():
             # When re walking, we forbid to go back
-            visible_around_this_wall_positions = self._reduce_by_not_last_walk(visible_around_this_wall_positions)
+            visible_around_this_wall_positions = self._reduce_by_not_last_walk(visible_around_this_wall_positions, wall_position)
+            # Order it to prioritize far away move
+            self._order_by_far_away(visible_around_this_wall_positions)
 
         return self._change_positions_to_directions(visible_around_this_wall_positions)
 
@@ -162,15 +167,25 @@ class GlueWallAntBrain(ByPassAntBrain):
                 if self._position_is_around_host(pos)
                 and self._feeler.position_is_free(pos))
 
-    def _reduce_positions_by_not_walked(self, positions):
+    def _reduce_positions_by_not_walked(self, positions, wall_position):
         return (pos for pos in positions
-                if pos not in self.get_memory_since_blocked())
+                if self._get_position_memory_for(wall_position, pos) not in self.get_memory_since_blocked())
 
-    def _reduce_by_not_last_walk(self, positions):
+    def _reduce_by_not_last_walk(self, positions, wall_position):
         return (pos for pos in positions
-                if not pos == self.get_last_memory_since_blocked())
+                if not self._get_position_memory_for(wall_position, pos) == self.get_last_memory_since_blocked())
+
+    def _order_by_far_away(self, positions):
+        last_walked_pos = self.get_last_memory_since_blocked()[1]
+        return sorted(positions, key=lambda pos: distance_from_points(last_walked_pos, pos), reverse=True)
 
     def _change_positions_to_directions(self, positions):
         host_position = self._host.get_position()
         return (get_direction_between_near_points(host_position, pos)
                 for pos in positions)
+
+    def _get_current_position_memory(self):
+        return self._get_current_wall_position(), self._host.get_position()
+
+    def _get_position_memory_for(self, wall, pos):
+        return wall, pos
