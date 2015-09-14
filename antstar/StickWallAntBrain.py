@@ -39,7 +39,7 @@ class StickWallAntBrain(ByPassAntBrain):
         try:
             return self._get_direction_for_current_wall()
         except Blocked:
-            self._previous_wall_position = None  # TODO: encapsulateur
+            self._set_previous_wall_position(None)
             return self._get_direction_for_current_wall()
 
     def _advance_current_wall(self):
@@ -68,13 +68,13 @@ class StickWallAntBrain(ByPassAntBrain):
         raise StopIteration()
 
     def _advance_wall_on(self, position):
-        self._previous_wall_position = self._current_wall_position
-        self._current_wall_position = position
+        self._set_previous_wall_position(self._current_wall_position)
+        self._set_current_wall_position(position)
 
     def _has_moved(self, direction):
         super()._has_moved(direction)
         if not self._current_wall_changed:
-            self._previous_wall_position = None
+            self._set_previous_wall_position(None)
 
     def _get_direction_for_current_wall(self):
         around_wall_positions = around_positions_of(self._get_current_wall_position())
@@ -91,6 +91,9 @@ class StickWallAntBrain(ByPassAntBrain):
 
     def _get_previous_wall_position(self):
         return self._previous_wall_position
+
+    def _set_previous_wall_position(self, position):
+        self._previous_wall_position = position
 
     def _reduce_positions_by_host_visibility(self, positions):
         return (pos for pos in positions
