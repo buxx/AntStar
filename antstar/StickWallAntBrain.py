@@ -28,7 +28,7 @@ class StickWallAntBrain(ByPassAntBrain):
 
     def erase(self):
         super().erase()
-        self._set_current_wall_square(None)
+        self._set_current_wall_position(None)
         self._set_is_re_walking(False)
 
     def _get_by_pass_advance_direction(self):
